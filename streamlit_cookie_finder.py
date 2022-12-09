@@ -181,9 +181,8 @@ if app_mode == 'Kmeans':
     segmented_image = segment_image_kmeans(image, k=k_value, attempts=attempts_value_slider)
     
     # count objects
-    img = cv2.imread(image)
-    box, label, count = cv.detect_common_objects(img)
-    output = draw_bbox(img, box, label, count)
+    box, label, count = cv.detect_common_objects(image)
+    output = draw_bbox(image, box, label, count)
     output = cv2.cvtColor(output,cv2.COLOR_BGR2RGB)
 
     # Display the result on the right (main frame)
