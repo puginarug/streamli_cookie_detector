@@ -186,8 +186,8 @@ if app_mode == 'Kmeans':
     # count objects
     box, label, count = cv.detect_common_objects(image)
     output = draw_bbox(image, box, label, count)
-    output = cv2.cvtColor(output,cv2.COLOR_BGR2RGB)
-
+    #output = cv2.cvtColor(output,cv2.COLOR_BGR2RGB)
+    
     # Display the result on the right (main frame)
     st.subheader(f"You have {str(len(label))} wonderful cookies")
     st.image(segmented_image, use_column_width=True)
