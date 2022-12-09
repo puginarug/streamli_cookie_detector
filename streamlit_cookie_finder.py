@@ -9,6 +9,10 @@ import streamlit as st
 import cv2
 import numpy as np
 import skimage.io as io
+import skimage.filters
+from skimage.filters import threshold_otsu
+from skimage.filters.rank import entropy
+from skimage.morphology import disk
 
 # function to segment using k-means
 
@@ -38,6 +42,29 @@ def segment_image_kmeans(img, k=3, attempts=10):
     segmented_image = segmented_image.reshape(img.shape)
     
     return segmented_image
+
+def segment_image_otsu_entropy(img, disk_size=7):
+
+    # reading the image
+    img = io.imread(img, as_gray=True)
+
+    # creating a representation of the image based on entropy
+    entropy_img = entropy(img, disk(disk_size))
+
+    # now let us use otsu to threshold high vs low entropy regions.
+    thresh = threshold_otsu(entropy_img)
+
+    # now let us binarize the entropy image 
+    binary = entropy_img <= thresh
+
+    # a method to fill in holes
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8)) # define a kernel (change size if needed)
+    res = cv2.morphologyEx(img_as_ubyte(binary),cv2.MORPH_OPEN,kernel) # applying the kernel to our binary (make sure it's not a boolean array)
+
+    # display the results
+    new_mask = cv2.bitwise_not(res) # invert the image
+
+    return new_mask
 
 ## vars, main page, and sidebar
 
@@ -95,32 +122,114 @@ def image_resize(image, width=None, height=None, inter = cv2.INTER_AREA):
     
     return resized
 
-## Segment an Image
 
-# choosing a k value (either with +- or with a slider)
-k_value = st.sidebar.number_input('Insert K value (number of clusters):', value=4, min_value = 1) # asks for input from the user
-st.sidebar.markdown('---') # adds a devider (a line)
+## dropdown menu on the sidebar, to navigate between pages
 
-attempts_value_slider = st.sidebar.slider('Number of attempts', value = 7, min_value = 1, max_value = 10) # slider example
-st.sidebar.markdown('---') # adds a devider (a line)
+# add dropdown to select pages on left
+app_mode = st.sidebar.selectbox('Choose the App mode',
+                                  ['Kmeans', 'Otsu Entropy (recommended)'])
 
-# read an image from the user
-img_file_buffer = st.sidebar.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
+## 'Kmeans' page
 
-# assign the uplodaed image from the buffer, by reading it in
-if img_file_buffer is not None:
-    image = io.imread(img_file_buffer)
-else: # if no image was uploaded, then segment the demo image
-    demo_image = DEMO_IMAGE
-    image = io.imread(demo_image)
+# Run image
+if app_mode == 'Kmeans':
+    
+    st.sidebar.markdown('---') # adds a devider (a line)
+    
+    # side bar
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] . div:first-child{
+            width: 350px
+        }
 
-# display on the sidebar the uploaded image
-st.sidebar.text('Original Image')
-st.sidebar.image(image)
+        [data-testid="stSidebar"][aria-expanded="false"] . div:first-child{
+            width: 350px
+            margin-left: -350px
+        }    
+        </style>
 
-# call the function to segment the image
-segmented_image = segment_image_kmeans(image, k=k_value, attempts=attempts_value_slider)
+        """,
+        unsafe_allow_html=True,
 
-# Display the result on the right (main frame)
-st.subheader('Output Image')
-st.image(segmented_image, use_column_width=True)
+
+    )
+
+    # choosing a k value (either with +- or with a slider)
+    k_value = st.sidebar.number_input('Insert K value (number of clusters):', value=4, min_value = 1) # asks for input from the user
+    st.sidebar.markdown('---') # adds a devider (a line)
+    
+    attempts_value_slider = st.sidebar.slider('Number of attempts', value = 7, min_value = 1, max_value = 10) # slider example
+    st.sidebar.markdown('---') # adds a devider (a line)
+    
+    # read an image from the user
+    img_file_buffer = st.sidebar.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
+
+    # assign the uplodaed image from the buffer, by reading it in
+    if img_file_buffer is not None:
+        image = io.imread(img_file_buffer)
+    else: # if no image was uploaded, then segment the demo image
+        demo_image = DEMO_IMAGE
+        image = io.imread(demo_image)
+
+    # display on the sidebar the uploaded image
+    st.sidebar.text('Original Image')
+    st.sidebar.image(image)
+    
+    # call the function to segment the image
+    segmented_image = segment_image_kmeans(image, k=k_value, attempts=attempts_value_slider)
+    
+    # Display the result on the right (main frame)
+    st.subheader('Output Image')
+    st.image(segmented_image, use_column_width=True)
+
+## 'Color Spaces' page
+
+# Run image
+if app_mode == 'Otsu Entropy (recommended)':
+    
+    st.sidebar.markdown('---') # adds a devider (a line)
+    
+    # side bar
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] . div:first-child{
+            width: 350px
+        }
+
+        [data-testid="stSidebar"][aria-expanded="false"] . div:first-child{
+            width: 350px
+            margin-left: -350px
+        }    
+        </style>
+
+        """,
+        unsafe_allow_html=True,
+
+
+    )
+
+    # assign the uplodaed image from the buffer, by reading it in
+    if img_file_buffer is not None:
+        image = io.imread(img_file_buffer)
+    else: # if no image was uploaded, then segment the demo image
+        demo_image = DEMO_IMAGE
+        image = io.imread(demo_image)
+
+    # display on the sidebar the uploaded image
+    st.sidebar.text('Original Image')
+    st.sidebar.image(image)
+    
+    # choosing a disc size value (either with +- or with a slider)
+    disk_size = st.sidebar.number_input('Insert disk size value:', value=7, min_value = 1) # asks for input from the user
+    
+    st.sidebar.markdown('---') # adds a devider (a line)
+
+    # call the function to segment the image
+    segment_image_otsu_entropy(image, disk_size)
+    
+    # Display the result on the right (main frame)
+    st.subheader('Output Image')
+    st.image(segmented_image, use_column_width=True)
