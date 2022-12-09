@@ -191,8 +191,9 @@ if app_mode == 'Kmeans':
     # Display the result on the right (main frame)
     st.subheader(f"You have {str(len(label))} wonderful cookies")
     st.image(segmented_image, use_column_width=True)
+    st.image(output, use_column_width=True)
 
-## 'Color Spaces' page
+## 'Otsu Entropy' page - doesnt work yet
 
 # Run image
 if app_mode == 'Otsu Entropy (recommended)':
@@ -219,7 +220,7 @@ if app_mode == 'Otsu Entropy (recommended)':
 
     )
 
-    
+    '''
     # choosing a disc size value (either with +- or with a slider)
     disk_size = st.sidebar.number_input('Insert disk size value:', value=7, min_value = 1) # asks for input from the user
     
@@ -244,3 +245,4 @@ if app_mode == 'Otsu Entropy (recommended)':
     # Display the result on the right (main frame)
     st.subheader('Output Image')
     st.image(segmented_image, use_column_width=True)
+    '''
