@@ -13,6 +13,9 @@ import skimage.filters
 from skimage.filters import threshold_otsu
 from skimage.filters.rank import entropy
 from skimage.morphology import disk
+import cvlib as cv
+from cvlib.object_detection import draw_bbox
+from numpy.lib.polynomial import poly
 
 # function to segment using k-means
 
