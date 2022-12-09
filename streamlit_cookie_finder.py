@@ -10,8 +10,6 @@ import cv2
 import numpy as np
 import skimage.io as io
 
-st.title('The One and Only Cookie Finder')
-
 # function to segment using k-means
 
 def segment_image_kmeans(img, k=3, attempts=10): 
