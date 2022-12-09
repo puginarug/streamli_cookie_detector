@@ -64,7 +64,7 @@ def segment_image_otsu_entropy(img, disk_size=7):
     # display the results
     new_mask = cv2.bitwise_not(res) # invert the image
 
-    return new_mask
+    return img
 
 ## vars, main page, and sidebar
 
