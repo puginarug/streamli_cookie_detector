@@ -211,9 +211,6 @@ if app_mode == 'Otsu Entropy (recommended)':
 
     )
 
-    # display on the sidebar the uploaded image
-    st.sidebar.text('Original Image')
-    st.sidebar.image(image)
     
     # choosing a disc size value (either with +- or with a slider)
     disk_size = st.sidebar.number_input('Insert disk size value:', value=7, min_value = 1) # asks for input from the user
