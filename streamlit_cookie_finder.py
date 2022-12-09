@@ -211,13 +211,6 @@ if app_mode == 'Otsu Entropy (recommended)':
 
     )
 
-    # assign the uplodaed image from the buffer, by reading it in
-    if img_file_buffer is not None:
-        image = io.imread(img_file_buffer)
-    else: # if no image was uploaded, then segment the demo image
-        demo_image = DEMO_IMAGE
-        image = io.imread(demo_image)
-
     # display on the sidebar the uploaded image
     st.sidebar.text('Original Image')
     st.sidebar.image(image)
@@ -226,10 +219,23 @@ if app_mode == 'Otsu Entropy (recommended)':
     disk_size = st.sidebar.number_input('Insert disk size value:', value=7, min_value = 1) # asks for input from the user
     
     st.sidebar.markdown('---') # adds a devider (a line)
+    # read an image from the user
+    img_file_buffer = st.sidebar.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
+
+    # assign the uplodaed image from the buffer, by reading it in
+    if img_file_buffer is not None:
+        image = io.imread(img_file_buffer)
+    else: # if no image was uploaded, then segment the demo image
+        demo_image = DEMO_IMAGE
+        image = io.imread(demo_image)
+    
+    # display on the sidebar the uploaded image
+    st.sidebar.text('Original Image')
+    st.sidebar.image(image)
 
     # call the function to segment the image
     segment_image_otsu_entropy(image, disk_size)
-    
+
     # Display the result on the right (main frame)
     st.subheader('Output Image')
     st.image(segmented_image, use_column_width=True)
